@@ -146,7 +146,7 @@
         
         function showWhereToBuy() 
         {
-            document.getElementById('coms').innerHTML = `Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it.<br>
+            document.getElementById('plugitin').innerHTML = `Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it.<br>
             The LILYGO ESP32 T-Display is sold here:<br>
             <a href="https://www.amazon.com/gp/product/B099MPFJ9M" target="_blank">Amazon (get the 16M CH9102F)</a><br>
             <a href="https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers" target="_blank">lilygo.cc (get the T-Display 16M [Q125])</a><br><br>
@@ -159,7 +159,7 @@
     <div id="flasher">
 
     <ol>
-        <li>Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it. <a onclick="showWhereToBuy()">Where do I buy one?</a></li>
+        <li id="plugitin">Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it. <a onclick="showWhereToBuy()">Where do I buy one?</a></li>
         <li id="coms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
         <li>Get Monocle installed and connected in less than a minute</li>
     </ol>
