@@ -98,7 +98,7 @@ static void drawModeFooter(const char* str)
     spr.setTextSize(1);
     spr.setTextDatum(TC_DATUM);
     spr.setTextColor(TFT_WHITE, TFT_BLACK);
-    spr.drawString(str, IWIDTH/2, IHEIGHT/2 + 41); 
+    spr.drawString(str, IWIDTH/2, IHEIGHT/2 + 40); 
 }
 
 
@@ -106,7 +106,7 @@ static void drawModeFooter(const char* str)
 static void drawDutyCycleBar()
 {
     WheelData* wheel = getWheelData();
-    const static uint32_t barHeight = 30;    
+    const static uint32_t barHeight = 36;    
     uint32_t peakWidth = 8; 
     int32_t barWidth = IWIDTH * (wheel->dutyCycle / 100.f);
     int32_t peakPos = IWIDTH * (wheel->dutyPeak / 100.f);  
@@ -192,7 +192,6 @@ static void drawVolts()
     spacesToZeros(voltString);
 
     clearDisplay();
-
     spr.setTextFont(8);
     spr.setTextDatum(BC_DATUM);
     spr.setTextSize(1);
@@ -212,7 +211,6 @@ static void drawHudBattery()
     dtostrf(battery_percent, 3, 0, (char*)&battStr);
     
     clearDisplay();
-
     spr.setTextFont(8);
     spr.setTextSize(1);
     spr.setTextDatum(MC_DATUM);
