@@ -135,11 +135,13 @@
 
         function showSerialHelp() 
         {
-            document.getElementById('coms').innerHTML = `Hit "Install" and select the correct COM port.<br><br>
+            document.getElementById('nocoms').innerHTML = `Hit "Install" and select the correct COM port.<br><br>
             You might be missing the drivers for your board.<br>
             Here are drivers for chips commonly used in ESP boards:<br>
-            <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers" target="_blank">CP2102 (square chip)</a><br>
-            <a href="https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers" target="_blank">CH34x (rectangular chip)</a><br><br>
+            <a href="http://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html" target="_blank">CHxxx Series MAC driver</a><br>
+            <a href="http://www.wch-ic.com/downloads/CH343SER_ZIP.html" target="_blank">CHxxx Series Windows driver</a><br>
+	    <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads" target="_blank">CP21xx Series driver</a><br>
+	    <br>
             Make sure your USB cable supports data transfer.<br><br>
             `;
         }
@@ -160,7 +162,7 @@
 
     <ol>
         <li id="plugitin">Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it. <a onclick="showWhereToBuy()">Where do I buy one?</a></li>
-        <li id="coms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
+        <li id="nocoms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
         <li>Get Monocle installed and connected in less than a minute</li>
     </ol>
     <br>
