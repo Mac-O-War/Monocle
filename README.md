@@ -2,10 +2,10 @@
 A ESP32 display for Electric Unicycles for stats like speed and Duty Cycle
 
 Runs on this board
-https://www.amazon.com/dp/B099MPFJ9M
+https://www.amazon.com/dp/B099MPFJ9M (get the 16M CH9102F)
 
 Get slower shipping but a better price here:
-https://www.lilygo.cc/products/lilygo%C2%AE-ttgo-t-display-1-14-inch-lcd-esp32-control-board
+https://www.lilygo.cc/products/lilygo%C2%AE-ttgo-t-display-1-14-inch-lcd-esp32-control-board (get the T-Display 16M [Q125])
 
 Get the Series	Q125 - 16M version.
  
