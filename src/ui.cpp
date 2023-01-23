@@ -115,7 +115,10 @@ static void drawDutyCycleBar()
     spr.fillRect(0, IHEIGHT - barHeight, barWidth,  barHeight,  barColor); // draw bar
     spr.fillRect(peakPos - peakWidth, IHEIGHT - barHeight, peakWidth,  barHeight,  TFT_RED); // draw peak
     spr.drawRect(0, IHEIGHT - barHeight, IWIDTH, barHeight, TFT_WHITE); // draw boarder
-    if(wheel->dutyCycle < 35 && wheel->dutyPeak < 35)
+
+    // Only draw the 'PWM' label if it won't be in the 
+    // way of the pwm bar.
+    if( (wheel->dutyCycle < 35) && (wheel->dutyPeak < 35) )
         drawModeFooter("PWM");    
 }
 
@@ -177,7 +180,7 @@ static void drawConnecting()
     spr.setTextFont(4);
     spr.setTextSize(2);
     spr.setTextDatum(MC_DATUM);
-    spr.drawString("Connecting", IWIDTH/2, IHEIGHT/2); 
+    spr.drawString("*", IWIDTH/2, IHEIGHT/2); 
 }
 
 
@@ -340,7 +343,7 @@ void init_ui()
     spr.setTextSize(2);
 
     // tell the user the display is working
-    displayMsg("POWER", 1200);
+    displayMsg("POWER", 0);
   
     // setup buttons
     button_init();
@@ -365,8 +368,10 @@ DISPLAY_MODE displayModes[] =
     {drawHudBattery,       "BATT"},
 };
 
+DISPLAY_MODE disconnectedMode = {drawConnecting, "Connecting"};
+
 size_t currDisplayModeIdx = 0;
-DISPLAY_MODE currentMode = displayModes[currDisplayModeIdx];
+DISPLAY_MODE currentMode = disconnectedMode;
 
 
 void nextMode()
@@ -378,7 +383,15 @@ void nextMode()
         currDisplayModeIdx = 0;
 
     currentMode = displayModes[currDisplayModeIdx];
-    //displayMsg(currentMode.name, 1300);
+}
+
+
+static void checkWheelConnection()
+{
+    if(getWheelData()->connected)
+        currentMode = displayModes[currDisplayModeIdx];
+    else 
+        currentMode = disconnectedMode;
 }
 
 
@@ -388,9 +401,13 @@ void draw_ui()
     btn1.loop();
     btn2.loop();
 
+    checkWheelConnection(); 
+
     currentMode.drawFunc();
+
     if(showFPS)
         drawFPS();
+
     spr.pushSprite(0, 0); // draw the sprite to the display     
 }
 
