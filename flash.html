@@ -138,9 +138,9 @@
             document.getElementById('nocoms').innerHTML = `Hit "Install" and select the correct COM port.<br><br>
             You might be missing the drivers for your board.<br>
             Here are drivers for chips commonly used in ESP boards:<br>
-            <a href="http://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html" target="_blank">CHxxx Series MAC driver</a><br>
-            <a href="http://www.wch-ic.com/downloads/CH343SER_ZIP.html" target="_blank">CHxxx Series Windows driver</a><br>
-	    <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads" target="_blank">CP21xx Series driver</a><br>
+            <li><a href="http://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html" target="_blank">CHxxx Series MAC driver</a></li>
+            <li><a href="http://www.wch-ic.com/downloads/CH343SER_ZIP.html" target="_blank">CHxxx Series Windows driver</a></li>
+	    <li><a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads" target="_blank">CP21xx Series driver</a></li>
 	    <br>
             Make sure your USB cable supports data transfer.<br><br>
             `;
@@ -150,26 +150,31 @@
         {
             document.getElementById('plugitin').innerHTML = `Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it.<br><br>
             The LILYGO ESP32 T-Display is sold here:<br>
-            <a href="https://www.amazon.com/gp/product/B099MPFJ9M" target="_blank">Amazon (get the 16M CH9102F)</a><br>
-            <a href="https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers" target="_blank">lilygo.cc (get the T-Display 16M [Q125])</a><br><br>
+            <li><a href="https://www.amazon.com/gp/product/B099MPFJ9M" target="_blank">Amazon (get the 16M CH9102F)</a></li>
+            <li><a href="https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers" target="_blank">lilygo.cc (get the T-Display 16M [Q125])</a></li><br>
             `;
         }
     </script>
-    
-    <h1>Welcome to the Monocle web installer</h1>
-    
-    <div id="flasher">
+    <div class="main">
+	    <h1>Monocle Web Installer</h1>
 
-    <ol>
-        <li id="plugitin">Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it. <a onclick="showWhereToBuy()">Where do I buy one?</a></li>
-        <li id="nocoms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
-        <li>Get Monocle installed and connected in less than a minute</li>
-    </ol>
-    <br>
-    <br>
-    
-    <div class="container inst-button">
-        <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
+	    <img alt="" src="images/interface.jpg"/>
+
+	    <h3>Install Monocle to a LILYGO ESP32 T-Display board in your browser. No need to mess around with commandline tools.</h3>    
+
+	    <div id="flasher">
+
+	    <ol>
+		<li id="plugitin">Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it. <a onclick="showWhereToBuy()">Where do I buy one?</a></li>
+		<li id="nocoms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
+		<li>Monocle will take about a minute to install.</li>
+	    </ol>
+	    <br>
+	    <br>
+
+	    <div class="container inst-button">
+		<esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
+	    </div>
     </div>
 </body>
 </html>
