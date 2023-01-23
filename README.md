@@ -22,5 +22,4 @@ The main screen show both Speed and Duty Cycle.
 ![interface](images/interface.jpg)
 
 
-Flash your board here:
-https://mac-o-war.github.io/Monocle/flash.html
+Flash your board with the [Moncle Web Installer](https://mac-o-war.github.io/Monocle/flash.html)
