@@ -6,6 +6,8 @@ https://www.amazon.com/dp/B099MPFJ9M
 
 Get slower shipping but a better price here:
 https://www.lilygo.cc/products/lilygo%C2%AE-ttgo-t-display-1-14-inch-lcd-esp32-control-board
+
+Get the 16M version.
  
 Nothing to connect or solder
  
