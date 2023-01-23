@@ -12,3 +12,5 @@ Nothing to connect or solder
 Gets about 5 updates per second from my Sherman Max
 
 The display is outputting about 60 FPS
+
+![interface](images/interface.jpg)
