@@ -1,8 +1,173 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <h1>Monocle Flashing Tool</h1>
+    
+<head>
+  <meta charset="utf-8">
+	<meta content='width=device-width' name='viewport'>
+  <meta name="theme-color" content="#222222">
+  <link rel="shortcut icon" href="favicon.png"> 
+	<title>Install Monocle</title>
+  <script
+    type="module"
+    src="installer-v2/install-button.js"
+  ></script>
+	<style>
+		body {
+			font-family: Verdana, Helvetica, sans-serif;
+			text-align: center;
+			background-color: #222;
+			margin: 0;
+      color: #fff;
+		}
+    
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='white'><polygon points='0,0 100,0 50,50'/></svg>") no-repeat;
+      background-size: 12px;
+      background-position: 206px 17px;
+      padding-left: 12px !important;
+      background-repeat: no-repeat;
+      outline: none;
+    }
+    select:-moz-focusring {
+      transition-duration: 0s;
+      color: transparent;
+      text-shadow: 0 0 0 #fff;
+    }
+    option {
+      background-color: var(--c-3);
+      color: var(--c-f);
+    }
+    
+    .btn {
+      outline: none;
+      cursor: pointer;
+      padding: 8px;
+      margin: 10px;
+      width: 230px;
+      font-family: Verdana, Helvetica, sans-serif;
+      font-size: 19px;
+      background-color: #333;
+      color: white;
+      border: 0px solid white;
+      border-radius: 25px;
+    }
+    
+    img {
+      width: 770px;
+      max-width: 80%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      margin: 3vh 0 5px 0;
+      animation: fi 1s;
+    }
+    
+    @keyframes fi {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+    }
+    
+    .main {
+      animation: fi 1.5s .7s both;
+    }
+    
+    a {
+      color: #fff;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    
+    ol {
+      margin: auto;
+      text-align: left;
+      display: inline-block;
+    }
+    
+    li::marker {
+      text-decoration: bold;
+      color: #09f;
+    }
+    
+    li {
+      margin: 5px;
+    }
+    
+    .container {
+      width: 80%;
+      max-width: 510px;
+      margin: auto;
+      border-radius: 5px;
+      box-sizing: border-box;
+      background-color: #222;
+      overflow: hidden;
+    }
+    
+    .inst-button {
+      padding: 5px 0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      ewt-install-dialog {
+        /*--mdc-theme-primary: #ffa000; /*buttons*/
+        --mdc-theme-surface: #333;
+        --mdc-dialog-heading-ink-color: #fff;
+        --mdc-dialog-content-ink-color: #ddd;
+        --mdc-text-field-fill-color: #ddd;
+      }
+    }
+	</style>
+</head>
+    
+<body onload="checkSupported()">
     <script type="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
-    <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
+    <script>    
+        function checkSupported() 
+        {
+            if (document.getElementById('inst').hasAttribute('install-unsupported')) unsupported();
+        }
+
+        function unsupported() 
+        {
+            document.getElementById('flasher').innerHTML = "Sorry, your browser is not yet supported!<br>Please try on Desktop Chrome or Edge.<br>"
+        }
+
+        function showSerialHelp() 
+        {
+            document.getElementById('coms').innerHTML = `Hit "Install" and select the correct COM port.<br><br>
+            You might be missing the drivers for your board.<br>
+            Here are drivers for chips commonly used in ESP boards:<br>
+            <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers" target="_blank">CP2102 (square chip)</a><br>
+            <a href="https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers" target="_blank">CH34x (rectangular chip)</a><br><br>
+            Make sure your USB cable supports data transfer.<br><br>
+            `;
+        }
+        
+        function showWhereToBuy() 
+        {
+            document.getElementById('coms').innerHTML = `Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it.<br>
+            The LILYGO ESP32 T-Display is sold here:<br>
+            <a href="https://www.amazon.com/gp/product/B099MPFJ9M" target="_blank">Amazon (get the 16M CH9102F)</a><br>
+            <a href="https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers" target="_blank">lilygo.cc (get the T-Display 16M [Q125])</a><br><br>
+            `;
+        }
+    </script>
+    
+    <h1>Welcome to the Monocle web installer</h1>
+    
+    <div id="flasher">
+
+    <ol>
+        <li>Plug in your LILYGO ESP32 T-Display into a USB port. This tool will install Monocle to it. <a onclick="showWhereToBuy()">Where do I buy one?</a></li>
+        <li id="coms">Hit "Install" and select the correct COM port. <a onclick="showSerialHelp()">No device found?</a></li>
+        <li>Get Monocle installed and connected in less than a minute</li>
+    </ol>
+    <br>
+    <br>
+    
+    <div class="container inst-button">
+        <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
+    </div>
 </body>
 </html>
