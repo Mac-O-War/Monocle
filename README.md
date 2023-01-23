@@ -10,4 +10,5 @@ https://www.lilygo.cc/products/lilygo%C2%AE-ttgo-t-display-1-14-inch-lcd-esp32-c
 Nothing to connect or solder
  
 Gets about 5 updates per second from my Sherman Max
+
 The display is outputting about 60 FPS

@@ -23,7 +23,7 @@ const char* wheel_mac_addr = "88:25:83:f3:62:fa";  // jason
 //const char* wheel_mac_addr = "88:25:83:F3:61:F5";  // sam
 
 
-void maintain_wheel_connection()
+static void maintain_wheel_connection()
 {
     WheelData* wheel = getWheelData();
     if (wheel->connected == false) 

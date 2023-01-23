@@ -18,12 +18,43 @@ TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
 
 
-
+static bool showFPS = false;
 
 
 static inline float kilometers2miles(float kilometers)
 {
     return kilometers * 0.621371f;
+}
+
+
+/*
+ * the float libs are limited on this platform
+ * sprintf and dtostrf won't do leading zeros.
+ * So this function replaces spaces for zeros.
+ * It doesn't handle negative numbers
+*/
+static void spacesToZeros(char* charStr) 
+{
+    size_t len = strlen(charStr);
+    for (int i = 0; i < len; i++)
+    {
+        if (charStr[i] == ' ')
+            charStr[i] = '0';
+        else
+            break;
+    }
+}
+
+
+/* 
+ * there's a bug in spr.fillScreen() where only half the screen 
+ * is cleared. I think it happens because this code rotates the 
+ * screen. This function is the workaround. It just draws a 
+ * rectangle over the screen
+*/
+static inline void clearDisplay()
+{
+    spr.fillRect(0, 0, IWIDTH, IHEIGHT, TFT_BLACK);
 }
 
 
@@ -37,11 +68,14 @@ static float calcFPS()
 }
 
 
-static void printFps()
+static void drawFPS()
 {
     float fps = calcFPS();
-    Serial.print("FPS: ");
-    Serial.println(fps);
+    spr.setTextFont(2);
+    spr.setTextSize(1);
+    spr.setTextDatum(BR_DATUM);
+    spr.setTextColor(TFT_YELLOW, TFT_BLACK);
+    spr.drawFloat(fps, 1, IWIDTH - 12, IHEIGHT - 8); 
 }
 
 
@@ -58,8 +92,18 @@ void displayMsg(const char* msg, int timeDelay)
 }
 
 
+static void drawModeFooter(const char* str)
+{
+    spr.setTextFont(4);
+    spr.setTextSize(1);
+    spr.setTextDatum(TC_DATUM);
+    spr.setTextColor(TFT_WHITE, TFT_BLACK);
+    spr.drawString(str, IWIDTH/2, IHEIGHT/2 + 41); 
+}
+
+
 // This can be drawn over any other display
-void drawDutyCycleBar()
+static void drawDutyCycleBar()
 {
     WheelData* wheel = getWheelData();
     const static uint32_t barHeight = 30;    
@@ -70,24 +114,35 @@ void drawDutyCycleBar()
     spr.fillRect(0, IHEIGHT - barHeight, IWIDTH,    barHeight, TFT_BLACK); // clear
     spr.fillRect(0, IHEIGHT - barHeight, barWidth,  barHeight,  barColor); // draw bar
     spr.fillRect(peakPos - peakWidth, IHEIGHT - barHeight, peakWidth,  barHeight,  TFT_RED); // draw peak
-    spr.drawRect(0, IHEIGHT - barHeight, IWIDTH,    barHeight, TFT_WHITE); // draw boarder
+    spr.drawRect(0, IHEIGHT - barHeight, IWIDTH, barHeight, TFT_WHITE); // draw boarder
+    if(wheel->dutyCycle < 35 && wheel->dutyPeak < 35)
+        drawModeFooter("PWM");    
 }
 
 
-void drawSpeed()
-{  
-    static char speedString[16] = {0};    // speed string
 
+static void drawVerticalSpeedUnits(const char* units)
+{
+    spr.setTextFont(4);
+    spr.setTextSize(1);
+    spr.setTextDatum(MC_DATUM);
+    spr.setTextColor(TFT_RED, TFT_BLACK);
+    spr.drawChar(units[0], IWIDTH - 18, 15); 
+    spr.drawChar(units[1], IWIDTH - 18, 40);
+    spr.drawChar(units[2], IWIDTH - 18, 65);
+}
+
+
+static void drawSpeedNumber()
+{  
+    char speedString[8];
     spr.setTextFont(7);
     spr.setTextSize(2);
-    spr.setCursor(15, 0);
+    spr.setCursor(0, 0);
     WheelData* wheel = getWheelData();
     float mphSpeed = kilometers2miles(wheel->speed);
-
-    if(wheel->connected)
-        dtostrf(mphSpeed, 4, 1, (char*)&speedString);
-    else
-        strcpy(speedString, "--.-");
+    dtostrf(mphSpeed, 4, 1, (char*)&speedString);
+    spacesToZeros(speedString);
 
     if(mphSpeed > SPEED_RED_LINE)
     {
@@ -98,61 +153,82 @@ void drawSpeed()
         spr.setTextColor(TFT_GREEN, TFT_BLACK);
     }
 
-    if(speedString[0] == ' ')
-        spr.print('0'); 
-    else
-        spr.print(speedString[0]);     
-
+    spr.print(speedString[0]); 
     spr.print(speedString[1]); 
     spr.setTextColor(TFT_WHITE, TFT_BLACK);
     spr.print(speedString[2]); 
-    spr.print(speedString[3]); 
+    spr.print(speedString[3]);
+
+    drawVerticalSpeedUnits("MPH");
+    //drawVerticalSpeedUnits("KPH");   
 }
 
 
-void drawVolts()
+static void drawSpeed()
+{  
+    drawSpeedNumber();
+    drawModeFooter("Speed");
+}
+
+
+static void drawConnecting()
 {
-    spr.fillScreen(TFT_BLACK);
-    static char voltString[16] = {0};
-
-    spr.setTextFont(7);
+    clearDisplay();
+    spr.setTextFont(4);
     spr.setTextSize(2);
-    spr.setCursor(15, 15);
-    WheelData* wheel = getWheelData();
-
-    if(wheel->connected)
-        dtostrf(wheel->voltage, 5, 1, (char*)&voltString);
-    else
-        strcpy(voltString, "---.-v");
-
-    spr.setTextColor(TFT_GREEN, TFT_BLACK);    
-    spr.print(voltString); 
+    spr.setTextDatum(MC_DATUM);
+    spr.drawString("Connecting", IWIDTH/2, IHEIGHT/2); 
 }
 
 
-void drawHudBattery()
+static void drawVolts()
+{    
+    char voltString[8];
+    WheelData* wheel = getWheelData();
+    dtostrf(wheel->voltage, 5, 1, (char*)&voltString);    
+    spacesToZeros(voltString);
+
+    clearDisplay();
+
+    spr.setTextFont(8);
+    spr.setTextDatum(BC_DATUM);
+    spr.setTextSize(1);
+    spr.setTextColor(TFT_ORANGE, TFT_BLACK); 
+    spr.drawString(voltString,  IWIDTH/2, IHEIGHT/2 + 20);  
+
+    drawModeFooter("Volts"); 
+}
+
+
+static void drawHudBattery()
 {
     static char batteryPercentString[8] = {0};
     float battery_percent = get_board_battery_percentage();
-    spr.fillScreen(TFT_BLACK);
-    //spr.setCursor(15, 15);
-    spr.setTextFont(2);
+    
+    char battStr[8] = {0};
+    dtostrf(battery_percent, 3, 0, (char*)&battStr);
+    
+    clearDisplay();
+
+    spr.setTextFont(8);
     spr.setTextSize(1);
-    dtostrf(battery_percent, 4, 2, (char*)&batteryPercentString);  
-    spr.setTextColor(TFT_YELLOW, TFT_BLACK);
-    spr.println(batteryPercentString); 
+    spr.setTextDatum(MC_DATUM);
+    spr.setTextColor(TFT_BLUE, TFT_BLACK);
+    spr.drawString(battStr, IWIDTH/2, IHEIGHT/2 - 15);  
+
+    spr.setTextFont(4);
+    spr.setTextSize(1);
+    spr.setTextDatum(MC_DATUM);
+    spr.drawString("%", IWIDTH - 18, IHEIGHT/2 + 15); 
+
+    drawModeFooter("Display Battery"); 
 }
 
 
-void drawDutyCycle()
+static void drawDutyCycle()
 { 
-    spr.setCursor(0, 0); 
-    spr.fillScreen(TFT_RED);
     WheelData* wheel = getWheelData();
-    spr.setTextFont(7);
-    spr.setTextSize(2);
-    spr.setCursor(25, 20);  
-
+    
     if(wheel->dutyCycle > 80)
     {
         spr.setTextColor(TFT_BLACK, TFT_RED);
@@ -166,58 +242,28 @@ void drawDutyCycle()
         spr.setTextColor(TFT_GREEN, TFT_BLACK);
     }  
 
-    if(!wheel->connected)
-    {
-        spr.print("---"); 
-    }
-    else
-    {
-        if(wheel->dutyCycle < 100)
-            spr.print('0');
-        if(wheel->dutyCycle < 10)
-            spr.print('0');
-        spr.print(wheel->dutyCycle); 
-    }
+    char dutyString[4] = {0};
+    sprintf(dutyString, "%03d", wheel->dutyCycle);
+    
+    spr.setTextFont(7);
+    spr.setTextSize(2);
+    spr.setTextDatum(MC_DATUM);
+    spr.drawString(dutyString, IWIDTH/2, IHEIGHT/2 - 15);  
+
+    spr.setTextFont(4);
+    spr.setTextSize(1);
+    spr.setTextDatum(MC_DATUM);
+    spr.drawString("%", IWIDTH - 18, IHEIGHT/2 + 25); 
+
+    drawModeFooter("Duty Cycle");   
 }
 
 
-void drawSpeedWithDutyBar()
+
+static void drawSpeedWithDutyBar()
 {
-    drawSpeed();
+    drawSpeedNumber();
     drawDutyCycleBar();    
-}
-
-
-typedef void (*DrawModFunc)();
-
-struct DISPLAY_MODE
-{
-    DrawModFunc drawFunc;
-    char name[12];
-};
-
-DISPLAY_MODE displayModes[] = 
-{
-    {drawSpeedWithDutyBar, "MULTI"},
-    {drawDutyCycle,        "PWM"},
-    {drawVolts,            "VOLT"},
-    {drawHudBattery,       "BATT"},
-};
-
-size_t currDisplayModeIdx = 0;
-DISPLAY_MODE currentMode = displayModes[currDisplayModeIdx];
-
-static void nextMode()
-{
-    //tft.fillScreen(TFT_BLACK);
-    //spr.fillScreen(TFT_BLACK);
-    size_t numMode = _countof(displayModes);
-    currDisplayModeIdx++;
-    if(currDisplayModeIdx >= numMode)
-        currDisplayModeIdx = 0;
-
-    currentMode = displayModes[currDisplayModeIdx];
-    //displayMsg(currentMode.name, 1300);
 }
 
 
@@ -266,12 +312,13 @@ void button_init()
 
     btn1.setTripleClickHandler([](Button2 & b) 
     {
-        Serial.println("Button 1 thriple click");       
+        Serial.println("Toggling FPS");
+        showFPS = !showFPS;       
     });
 
     btn2.setTripleClickHandler([](Button2 & b) 
     {
-        Serial.println("Button 2 thriple click");       
+        Serial.println("Button 2 triple click");       
     });
 }
 
@@ -281,14 +328,18 @@ void init_ui()
     // set up the screen
     tft.init();
     tft.setCursor(0, 0);
-    tft.setRotation(3); // 1 or 3 to flip
+    tft.setRotation(3); // 1 or 3 to flip depending on how it's mounted
     tft.fillScreen(TFT_BLACK);   
 
+    // the sprite is used for double buffering
     spr.createSprite(IWIDTH, IHEIGHT);
-    spr.fillScreen(TFT_BLACK);
+    spr.setCursor(0, 0);    
+    spr.fillRect(0, 0, IWIDTH, IHEIGHT, TFT_BLACK);
+    spr.pushSprite(0, 0);
     spr.setTextFont(7);
     spr.setTextSize(2);
 
+    // tell the user the display is working
     displayMsg("POWER", 1200);
   
     // setup buttons
@@ -296,11 +347,52 @@ void init_ui()
 }
 
 
-void draw_ui()
+
+typedef void (*DrawModFunc)();
+
+struct DISPLAY_MODE
 {
-    btn1.loop();
-    btn2.loop();        
-    //currentMode.drawFunc();
-    drawSpeedWithDutyBar();
-    spr.pushSprite(0, 0); // draw the sprite to the display   
+    DrawModFunc drawFunc;
+    char name[12];
+};
+
+DISPLAY_MODE displayModes[] = 
+{
+    {drawSpeedWithDutyBar, "MULTI"},
+    {drawSpeed,            "SPEED"},
+    {drawDutyCycle,        "PWM"},
+    {drawVolts,            "VOLT"},
+    {drawHudBattery,       "BATT"},
+};
+
+size_t currDisplayModeIdx = 0;
+DISPLAY_MODE currentMode = displayModes[currDisplayModeIdx];
+
+
+void nextMode()
+{
+    clearDisplay();
+    size_t numMode = _countof(displayModes);
+    currDisplayModeIdx++;
+    if(currDisplayModeIdx >= numMode)
+        currDisplayModeIdx = 0;
+
+    currentMode = displayModes[currDisplayModeIdx];
+    //displayMsg(currentMode.name, 1300);
 }
+
+
+
+void draw_ui()
+{    
+    btn1.loop();
+    btn2.loop();
+
+    currentMode.drawFunc();
+    if(showFPS)
+        drawFPS();
+    spr.pushSprite(0, 0); // draw the sprite to the display     
+}
+
+
+

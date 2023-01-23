@@ -9,3 +9,4 @@
 void init_ui();
 void displayMsg(const char* msg, int timeDelay);
 void draw_ui();
+void nextMode();

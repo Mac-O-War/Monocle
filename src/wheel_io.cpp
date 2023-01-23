@@ -67,7 +67,6 @@ struct WheelDataExtendedMsg
 struct WheelData currEucState = {};
        
 
-
 // EUC manufactures reused the most generic service UUID out there.
 // It appears that they just took this UUID straight from example code.
 // This means its difficult to tell what BLE devices are wheels and
@@ -78,7 +77,6 @@ static BLEUUID serviceUUID("0000ffe0-0000-1000-8000-00805f9b34fb");
 
 // object that represents the above service
 static BLEAdvertisedDevice* wheelDevice;
-
 
 // The characteristic that contains wheel data.
 // Reading this characteristic isn't too useful until you 
@@ -100,7 +98,10 @@ void init_wheel_io()
     BLEDevice::init("");
 }
 
-
+/*
+ * The UI should call this function to get the most
+ * current stats from the wheel.
+*/
 WheelData* getWheelData()
 {
     return &currEucState;
@@ -119,7 +120,7 @@ class WheelScanCallbacks: public BLEAdvertisedDeviceCallbacks
 
     void onResult(BLEAdvertisedDevice advertisedDevice) 
     {
-        Serial.print("BLE Advertised found: ");
+        Serial.print("BLE Advertised: ");
         Serial.println(advertisedDevice.toString().c_str());
         // without this check it would connect to lots of things and wheels that use that overused service UUID
         if (advertisedDevice.getAddress().equals(targetMAC))
@@ -259,7 +260,7 @@ static void notifyCallback(
             Serial.print("Encountered an unknown message type."); 
             printhex(raw, length);
     }
-
+/*
    Serial.printf("Speed: %02.1f   Volts: %.1f   Amps: %.1f   Temp: %.1f   DutyCycle: %u   msgPerSec: %.1f\n", 
                 currEucState.speed, 
                 currEucState.voltage, 
@@ -267,6 +268,7 @@ static void notifyCallback(
                 currEucState.temp,  
                 currEucState.dutyCycle, 
                 currEucState.msgPerSec);
+*/
 }
 
 
@@ -280,7 +282,8 @@ class MyClientCallback : public BLEClientCallbacks
 
     void onDisconnect(BLEClient* pclient) 
     {
-        currEucState.connected = false;
+        memset(&currEucState, 0x0, sizeof(currEucState));
+        currEucState.connected = false;        
         Serial.println("onDisconnect");
     }
 };
@@ -348,8 +351,9 @@ static bool connectToWheel()
 
 /*
 * We have the MAC address so in theory we can just connect to it.
-* But if its not there the BLE library and RTOS hangs in a ugly
-* way. The solution is to always do a scan first to make sure 
+* But if the wheel is off then the BLE library and RTOS hangs in 
+* a ugly way when a connection is attempted. 
+* The solution is to always do a scan first to make sure 
 * the wheel is on.
 */
 bool findAndConnectToWheel(const char* mac_address)
