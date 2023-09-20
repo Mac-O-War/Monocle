@@ -17,7 +17,7 @@ Gets about 5 updates per second from my Sherman Max
 
 The display is outputting about 60 FPS
 
-The main screen shows both Speed and Duty Cycle.
+The main screen shows both the numberical Speed and the Duty Cycle as a bar on the bottom.
 
 ![interface](images/interface.jpg)
 
